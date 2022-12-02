@@ -5,10 +5,10 @@ namespace Dinner.Application;
 
 public static class DependencyInjection
 {
-  public static IServiceCollection AddApplication(this IServiceCollection services)
-  {
-   services.AddScoped<IAuthenticationService,AuthenticationService>();
+    public static IServiceCollection AddApplication(this IServiceCollection services)
+    {
+        services.AddScoped<IAuthenticationService, AuthenticationService>();
 
-   return services;
-  }
+        return services;
+    }
 }
