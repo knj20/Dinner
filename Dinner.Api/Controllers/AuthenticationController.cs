@@ -1,11 +1,13 @@
 using Dinner.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Dinner.Application.Services.Authentication;
+using Dinner.Api.Filters;
 
 namespace Dinner.Api.Controllers;
 
 [ApiController]
 [Route("auth")]
+//[ErrorHandlingFilter]
 public class AuthenticationController : ControllerBase
 {
     private readonly IAuthenticationService _AuthenticationService;
