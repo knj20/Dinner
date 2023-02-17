@@ -2,6 +2,8 @@ using Dinner.Contracts.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Dinner.Application.Services.Authentication;
 using Dinner.Api.Filters;
+using OneOf;
+using Dinner.Application.Common.Errors;
 
 namespace Dinner.Api.Controllers;
 
@@ -20,21 +22,26 @@ public class AuthenticationController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest request)
     {
-        var registerResult = _AuthenticationService.Register(
+        OneOf<AuthenticationResult, IError> registerResult = _AuthenticationService.Register(
             request.FirstName,
             request.LastName,
             request.Email,
             request.Password
         );
 
-        var response = new AuthenticationResponse(
-            registerResult.user.Id,
-            registerResult.user.FirstName,
-            registerResult.user.LastName,
-            registerResult.user.Email,
-            registerResult.Token
-        );
-        return Ok(response);
+        return registerResult.Match(
+            authResult => Ok(MapAuthResult(authResult)),
+            error => Problem(statusCode: (int)error.StatusCode, title: error.ErrorMessage));       
+    }
+
+    private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
+    {
+        return new AuthenticationResponse(
+                                    authResult.user.Id,
+                                    authResult.user.FirstName,
+                                    authResult.user.LastName,
+                                    authResult.user.Email,
+                                    authResult.Token);
     }
 
     [HttpPost("login")]

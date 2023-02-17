@@ -1,6 +1,8 @@
+using Dinner.Application.Common.Errors;
 using Dinner.Application.Common.Interfaces.Authentication;
 using Dinner.Application.Common.Interfaces.Persistance;
 using Dinner.Domain.Entities;
+using OneOf;
 
 namespace Dinner.Application.Services.Authentication;
 
@@ -14,11 +16,13 @@ public class AuthenticationService : IAuthenticationService
         _jwTokenGenerator = jwTokenGenerator;
         _userRepository = userRepository;
     }
-    AuthenticationResult IAuthenticationService.Register(string firstName, string lastName, string email, string password)
+    OneOf<AuthenticationResult,IError> IAuthenticationService.Register(string firstName, string lastName, string email, string password)
     {
         if(_userRepository.GetUserByEmail(email) is not null)
         {
-            throw new Exception("User already exists");
+            // throw new DuplicateEmailException();
+            //throw new Exception("Email already existe");
+            return new DuplicateEmailError();
         }
 
         var user = new User()
