@@ -1,7 +1,9 @@
 using Dinner.Application.Common.Errors;
 using Dinner.Application.Common.Interfaces.Authentication;
 using Dinner.Application.Common.Interfaces.Persistance;
+using Dinner.Domain.Common.Errors;
 using Dinner.Domain.Entities;
+using ErrorOr;
 using FluentResults;
 
 namespace Dinner.Application.Services.Authentication;
@@ -16,14 +18,15 @@ public class AuthenticationService : IAuthenticationService
         _jwTokenGenerator = jwTokenGenerator;
         _userRepository = userRepository;
     }
-    public Result<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
+    public ErrorOr<AuthenticationResult> Register(string firstName, string lastName, string email, string password)
     {
         if(_userRepository.GetUserByEmail(email) is not null)
         {
             // throw new DuplicateEmailException();
             //throw new Exception("Email already existe");
             // return new DuplicateEmailError();
-            return Result.Fail<AuthenticationResult>(new[] { new DuplicateEmailError() });
+            // return Result.Fail<AuthenticationResult>(new[] { new DuplicateEmailError() });
+            return Errors.User.DuplicateEmail;
         }
 
         var user = new User()
@@ -41,16 +44,16 @@ public class AuthenticationService : IAuthenticationService
         return new AuthenticationResult(user, token);
     }
 
-    public AuthenticationResult Login(string email, string password)
+    public ErrorOr<AuthenticationResult> Login(string email, string password)
     {
         if(_userRepository.GetUserByEmail(email) is not User user)
         {
-            throw new Exception("user or password is not correct");
+            return Errors.Authentication.InvalidCredentials;
         }
 
         if(user.Password != password)
         {
-            throw new Exception("user or password is not correct");
+            return Errors.Authentication.InvalidCredentials;
         }
 
         var token = _jwTokenGenerator.GenerateToken(user);

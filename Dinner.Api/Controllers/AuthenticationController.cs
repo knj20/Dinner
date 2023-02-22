@@ -3,14 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using Dinner.Application.Services.Authentication;
 using Dinner.Api.Filters;
 using Dinner.Application.Common.Errors;
+using ErrorOr;
 using FluentResults;
 
 namespace Dinner.Api.Controllers;
 
-[ApiController]
 [Route("auth")]
 //[ErrorHandlingFilter]
-public class AuthenticationController : ControllerBase
+public class AuthenticationController : ApiController
 {
     private readonly IAuthenticationService _AuthenticationService;
 
@@ -22,25 +22,17 @@ public class AuthenticationController : ControllerBase
     [HttpPost("register")]
     public IActionResult Register(RegisterRequest request)
     {
-        Result<AuthenticationResult> registerResult = _AuthenticationService.Register(
+        ErrorOr<AuthenticationResult> registerResult = _AuthenticationService.Register(
             request.FirstName,
             request.LastName,
             request.Email,
             request.Password
         );
 
-        if(registerResult.IsSuccess)
-        {
-            return Ok(MapAuthResult(registerResult.Value));
-        }
-        var firstError = registerResult.Errors[0];
-
-        if(firstError is DuplicateEmailError)
-        {
-            return Problem(statusCode: StatusCodes.Status409Conflict, detail:"email already exists");
-        }
-
-        return Problem();
+        return registerResult.Match(
+            authResult => Ok(MapAuthResult(authResult)),
+            errors => Problem(errors));
+       
     }
 
     private static AuthenticationResponse MapAuthResult(AuthenticationResult authResult)
@@ -58,13 +50,9 @@ public class AuthenticationController : ControllerBase
     {
         var loginResult = _AuthenticationService.Login(request.Email, request.Password);
 
-        var response = new AuthenticationResponse(
-            loginResult.user.Id,
-            loginResult.user.FirstName,
-            loginResult.user.LastName,
-            loginResult.user.Email,
-            loginResult.Token
-        );
-        return Ok(response);
+        return loginResult.Match(
+            authResult => Ok(MapAuthResult(authResult)),
+            errors => Problem(errors));
+
     }
 }

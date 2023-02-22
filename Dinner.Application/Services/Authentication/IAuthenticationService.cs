@@ -1,15 +1,16 @@
 using Dinner.Application.Common.Errors;
+using ErrorOr;
 using FluentResults;
 
 namespace Dinner.Application.Services.Authentication;
 
 public interface IAuthenticationService
 {
-     AuthenticationResult Login(string email, string password);
-    Result<AuthenticationResult> Register(
+     ErrorOr<AuthenticationResult> Login(string email, string password);
+     ErrorOr<AuthenticationResult> Register(
         string firstName,
         string lastName,
         string email,
         string password
-    );
+     );
 }
