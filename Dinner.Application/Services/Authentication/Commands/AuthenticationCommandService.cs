@@ -1,19 +1,20 @@
 using Dinner.Application.Common.Errors;
 using Dinner.Application.Common.Interfaces.Authentication;
 using Dinner.Application.Common.Interfaces.Persistance;
+using Dinner.Application.Services.Authentication.Common;
 using Dinner.Domain.Common.Errors;
 using Dinner.Domain.Entities;
 using ErrorOr;
 using FluentResults;
 
-namespace Dinner.Application.Services.Authentication;
+namespace Dinner.Application.Services.Authentication.Commands;
 
-public class AuthenticationService : IAuthenticationService
+public class AuthenticationCommandService : IAuthenticationCommandService
 {
     private readonly IJwTokenGenerator _jwTokenGenerator;
     private readonly IUserRepository _userRepository;
 
-    public AuthenticationService(IJwTokenGenerator jwTokenGenerator, IUserRepository userRepository)
+    public AuthenticationCommandService(IJwTokenGenerator jwTokenGenerator, IUserRepository userRepository)
     {
         _jwTokenGenerator = jwTokenGenerator;
         _userRepository = userRepository;
@@ -38,23 +39,6 @@ public class AuthenticationService : IAuthenticationService
         };
         
         _userRepository.Add(user);
-
-        var token = _jwTokenGenerator.GenerateToken(user);
-
-        return new AuthenticationResult(user, token);
-    }
-
-    public ErrorOr<AuthenticationResult> Login(string email, string password)
-    {
-        if(_userRepository.GetUserByEmail(email) is not User user)
-        {
-            return Errors.Authentication.InvalidCredentials;
-        }
-
-        if(user.Password != password)
-        {
-            return Errors.Authentication.InvalidCredentials;
-        }
 
         var token = _jwTokenGenerator.GenerateToken(user);
 
