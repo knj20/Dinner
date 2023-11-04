@@ -1,5 +1,4 @@
-using Dinner.Api.Filters;
-using Dinner.Api.Middleware;
+using Dinner.Api;
 using Dinner.Application;
 using Dinner.Infrastructure;
 
@@ -8,9 +7,9 @@ var builder = WebApplication.CreateBuilder(args);
 
 {
     builder.Services.AddApplication()
-                    .AddInfrastructure(builder.Configuration);
-    // builder.Services.AddControllers(options => options.Filters.Add<ErrorHandlingFilterAttribute>());
-    builder.Services.AddControllers();
+                    .AddInfrastructure(builder.Configuration)
+                    .AddPresentation();
+
 }
 
 var app = builder.Build();

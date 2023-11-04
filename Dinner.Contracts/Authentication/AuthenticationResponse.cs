@@ -1,9 +1,9 @@
 namespace Dinner.Contracts.Authentication;
 
 public record AuthenticationResponse(
-    Guid id,
+    Guid Id,
     string FirstName,
     string LastName,
     string Email,
-    string token
+    string Token
 );
