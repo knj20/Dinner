@@ -6,11 +6,13 @@ using MediatR;
 using Dinner.Application.Services.Authentication.Commands.Register;
 using Dinner.Application.Services.Authentication.Queries.Login;
 using MapsterMapper;
+using Microsoft.AspNetCore.Authorization;
 
 namespace Dinner.Api.Controllers;
 
 [Route("auth")]
 //[ErrorHandlingFilter]
+[AllowAnonymous]
 public class AuthenticationController : ApiController
 {
     private readonly ISender _mediator;
