@@ -10,10 +10,11 @@ namespace Dinner.Domain.Menu.Entities
 {
     public sealed class MenuSection : Entity<MenuSectionId>
     {
-        private MenuSection(MenuSectionId id, string name, string description) : base(id)
+        private MenuSection(MenuSectionId id, string name, string description, List<MenuItem> items) : base(id)
         {
             Name = name;
             Description = description;
+            _items = items;
         }
         private readonly List<MenuItem> _items = new();
         public string Name { get; }
@@ -22,9 +23,9 @@ namespace Dinner.Domain.Menu.Entities
 
         public IReadOnlyList<MenuItem> Items => _items.AsReadOnly();
 
-        public static MenuSection Create(string name, string description)
+        public static MenuSection Create(string name, string description, List<MenuItem> items)
         {
-            return new MenuSection(MenuSectionId.CreateUnique(), name, description);
+            return new MenuSection(MenuSectionId.CreateUnique(), name, description, items);
         }
     }
 }

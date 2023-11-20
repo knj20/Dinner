@@ -1,20 +1,21 @@
 ﻿using Dinner.Domain.Common.Models;
+using Dinner.Domain.Dinner.ValueObjects;
 using Dinner.Domain.Host.ValueObjects;
 using Dinner.Domain.Menu.Entities;
 using Dinner.Domain.Menu.ValueObjects;
 using Dinner.Domain.MenuReview.ValueObjects;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace Dinner.Domain.Menu
 {
-    public sealed class Menu : AggregateRoot<DinnerId>
+    public sealed class Menu : AggregateRoot<MenuId>
     {
-        private Menu(DinnerId id) : base(id)
+        private Menu(MenuId id, HostId hostId, string name, string description, List<MenuSection> sections) : base(id)
         {
+            HostId = hostId;
+            Name = name;
+            Description = description;
+            _sections = sections;
         }
 
         private readonly List<MenuSection> _sections = new();
@@ -24,7 +25,7 @@ namespace Dinner.Domain.Menu
 
         public string Description { get;}
 
-        public float AverageRating { get;}
+        public float? AverageRating { get;}
 
         public HostId HostId { get; }
 
@@ -35,5 +36,10 @@ namespace Dinner.Domain.Menu
         public DateTime CreatedDateTime { get; set; }
 
         public DateTime UpdatedDateTime { get; set; }
+
+        public static Menu Create(HostId hostId, string name, string description, List<MenuSection> sections)
+        {
+            return new Menu(MenuId.CreateUnique(), hostId, name, description, sections);
+        }
     }
 }
